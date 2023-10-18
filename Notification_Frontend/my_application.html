@@ -11,63 +11,71 @@
 <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-messaging.js"></script>
 <script>
-    var firebaseConfig = {
-		apiKey: "AIzaSyDFw9c0ski1nklfoHi8R3qJ1-Aqg1FXZnU",
-		authDomain: "testnotification-59252.firebaseapp.com",
-		projectId: "testnotification-59252",
-		storageBucket: "testnotification-59252.appspot.com",
-		messagingSenderId: "89811850902",
-		appId: "1:89811850902:web:019a1449d11d46e9c594b7",
-		measurementId: "G-4JQ391T6Z9"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const messaging=firebase.messaging();
+    if ("Notification" in window) {
+        Notification.requestPermission().then(function (permission) {
+            if (permission === "granted") {
+                const firebaseConfig = {
+                    apiKey: "AIzaSyDFw9c0ski1nklfoHi8R3qJ1-Aqg1FXZnU",
+                    authDomain: "testnotification-59252.firebaseapp.com",
+                    projectId: "testnotification-59252",
+                    storageBucket: "testnotification-59252.appspot.com",
+                    messagingSenderId: "89811850902",
+                    appId: "1:89811850902:web:019a1449d11d46e9c594b7",
+                    measurementId: "G-4JQ391T6Z9"
+                };
+                firebase.initializeApp(firebaseConfig);
+                const messaging = firebase.messaging();
 
-    function IntitalizeFireBaseMessaging() {
-        messaging
-            .requestPermission()
-            .then(function () {
-                console.log("Notification Permission");
-                return messaging.getToken();
-            })
-            .then(function (token) {
-                console.log("Token : "+token);
-                document.getElementById("token").innerHTML=token;
-            })
-            .catch(function (reason) {
-                console.log(reason);
-            });
-    }
+                function IntitalizeFireBaseMessaging() {
+                    messaging
+                        .requestPermission()
+                        .then(function () {
+                            console.log("Notification Permission");
+                            alert("Notification Permission");
+                            return messaging.getToken();
+                        })
+                        .then(function (token) {
+                            console.log("Token : "+token);
+                            document.getElementById("token").innerHTML=token;
+                        })
+                        .catch(function (reason) {
+                            console.log(reason);
+                        });
+                }
 
-    messaging.onMessage(function (payload) {
-        console.log(payload);
-        const notificationOption={
-            body:payload.notification.body,
-            icon:payload.notification.icon
-        };
+                messaging.onMessage(function (payload) {
+                    console.log(payload);
+                    const notificationOption={
+                        body:payload.notification.body,
+                        icon:payload.notification.icon
+                    };
 
-        if(Notification.permission==="granted"){
-            var notification=new Notification(payload.notification.title,notificationOption);
+                    if(Notification.permission==="granted"){
+                        var notification=new Notification(payload.notification.title,notificationOption);
 
-            notification.onclick=function (ev) {
-                ev.preventDefault();
-                window.open(payload.notification.click_action,'_blank');
-                notification.close();
+                        notification.onclick=function (ev) {
+                            ev.preventDefault();
+                            window.open(payload.notification.click_action,'_blank');
+                            notification.close();
+                        }
+                    }
+
+                });
+                messaging.onTokenRefresh(function () {
+                    messaging.getToken()
+                        .then(function (newtoken) {
+                            console.log("New Token : "+ newtoken);
+                        })
+                        .catch(function (reason) {
+                            console.log(reason);
+                            //alert(reason);
+                        })
+                })
+
+                IntitalizeFireBaseMessaging();
             }
-        }
-
-    });
-    messaging.onTokenRefresh(function () {
-        messaging.getToken()
-            .then(function (newtoken) {
-                console.log("New Token : "+ newtoken);
-            })
-            .catch(function (reason) {
-                console.log(reason);
-				//alert(reason);
-            })
-    })
-    IntitalizeFireBaseMessaging();
+        });
+    }
 </script>
 </body>
 </html>
